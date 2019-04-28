@@ -68,6 +68,12 @@ def story(m):
         bot.send_message(m.chat.id, 'Хуй тебе, а не история от Бога')
 
 
+@bot.message_handler(commands=['print'])
+def pr(m):
+    print(gen.d)
+    bot.send_message(m.chat.id, 'ok')
+
+
 @bot.message_handler()
 def all_msg(m):
     if m.text:
