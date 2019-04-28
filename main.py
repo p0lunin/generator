@@ -64,7 +64,7 @@ bot = TeleBot('616926239:AAEfQVr4_2tf58Gcok-3YKO1vz6qUHYziVU')
 def create_gen(chat_id):
     if not chat_id in gen:
         gen[chat_id] = Generator()
-        gen[chat.id].add('Я - великий и могучий Перели. Склонись передо мной.') 
+        gen[chat_id].add('Я - великий и могучий Перели. Склонись передо мной.') 
 
 
 @bot.message_handler(commands=['test'])
