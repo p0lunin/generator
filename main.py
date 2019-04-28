@@ -69,6 +69,7 @@ def create_gen(chat_id):
 
 @bot.message_handler(commands=['test'])
 def story(m):
+    bot.delete_message(m.chat.id, m.message_id)
     create_gen(m.chat.id)
     mes = gen[m.chat.id].random_mes()
     if mes:
