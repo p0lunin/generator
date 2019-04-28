@@ -51,33 +51,43 @@ class Generator:
                     break
 
     def random_mes(self):
-        return self.generate(random.choice(list(self.d.keys())))
+        res = self.generate(random.choice(list(self.d.keys())))
+        while not res:
+            res = self.generate(random.choice(list(self.d.keys())))
+        return res
 
-
-gen = Generator()
+gen = {}
 
 bot = TeleBot('616926239:AAEfQVr4_2tf58Gcok-3YKO1vz6qUHYziVU')
 
 
+def create_gen(chat_id):
+    if not chat_id in gen:
+        gen[chat_id] = Generator()
+        gen[chat.id].add('Я - великий и могучий Перели. Склонись передо мной.') 
+
+
 @bot.message_handler(commands=['test'])
 def story(m):
-    mes = gen.random_mes()
+    create_gen(m.chat.id)
+    mes = gen[m.chat.id].random_mes()
     if mes:
         bot.send_message(m.chat.id, mes)
     else:
-        bot.send_message(m.chat.id, 'Хуй тебе, а не история от Бога')
+        bot.send_message(m.chat.id, 'Ишь чего захотел. Перехочешь.')
 
 
 @bot.message_handler(commands=['print'])
 def pr(m):
-    print(gen.d)
+    print(gen[m.chat_id].d)
     bot.send_message(m.chat.id, 'ok')
 
 
 @bot.message_handler()
 def all_msg(m):
+    create_gen(m.chat.id)
     if m.text:
-        gen.add(m.text)
+        gen[m.chat.id].add(m.text)
 
 
 bot.delete_webhook()
