@@ -51,7 +51,7 @@ class Generator:
                     break
 
     def random_mes(self):
-        res = self.generate(random.choice(list(self.d.keys())))
+        res = self.generate(':START:')
         while not res:
             res = self.generate(random.choice(list(self.d.keys())))
         return res
