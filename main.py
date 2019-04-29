@@ -1,4 +1,5 @@
 import random
+import traceback
 from telebot import TeleBot, types
 from pymongo import MongoClient
 from generator import Generator
@@ -13,8 +14,11 @@ rul_gen.add_rule('$action')
 rul_gen.add_words('$action', ['хочет', 'не хочет', 'продал', 'полюбил', 'трахнул', 'показал'])
 rul_gen.add_next('$action', '$whom')
 rul_gen.add_rule('$whom')
-rul_gen.add_words('$whom', ['осла', 'крысу', 'двач', 'жопу', 'пасюка', 'меня', 'гошу', 'брита', 'женю'])
+rul_gen.add_words('$whom', ['осла', 'крысу', 'двач', 'жопу', 'пасюка', 'меня', 'гошу', 'брита'])
 rul_gen.add_next('$whom', '$end_of_mes$')
+
+
+phrases = {}
 
 
 gen = {}
@@ -56,23 +60,12 @@ def story(m):
 @bot.message_handler(commands=['rul'])
 def rul(m):
     bot.delete_message(m.chat.id, m.message_id)
-    text_eblana = rul_gen.generate('$start')
-    spisok_slov_eblana = text_eblana.split(' ')
+    tts = rul_gen.generate('$start')
+    ttt = tts.split(' ')
     if ttt[0] == 'Двач' or ttt[0] == 'Женя':
-        if spisok_slov_eblana[1] != 'хочет' or spisok_slov_eblana[1] != 'не хочет':
-            alala = 'а'
-            text_eblana = spisok_slov_eblana[0] + ' ' + spisok_slov_eblana[1] + alala + ' ' + spisok_slov_eblana[2]
-    if ttt[0] == 'Я':      
-        if ttt[1] != 'не хочет':
-            text_eblana = spisok_slov_eblana[0] + ' ' + 'не хочу' + spisok_slov_eblana[2] 
-        elif ttt[1] != 'хочет':
-            text_eblana = spisok_slov_eblana[0] + ' ' + 'не хочу' + spisok_slov_eblana[2]
-    if spisok_slov_eblana[0] == 'Ты':
-        if spisok_slov_eblana[1] != 'не хочет':
-            text_eblana = spisok_slov_eblana[0] + ' ' + 'не хочешь' + spisok_slov_eblana[2] 
-        elif spisok_slov_eblana[1] != 'хочет':
-            text_eblana = spisok_slov_eblana[0] + ' ' + 'хочешь' + ttt[2]
-    bot.send_message(m.chat.id, text_eblana)
+        if ttt[1] != 'хочет' or ttt[1] != 'не хочет':
+            tts = ttt[0] + ' ' + ttt[1] + 'а' + ' ' + ttt[2]
+    bot.send_message(m.chat.id, tts)
 
 
 @bot.message_handler(commands=['upddb'])
@@ -82,6 +75,21 @@ def upd_db(m):
         for chat_id in gen:
             chats.update_one({'id': chat_id}, {'$set': {'words': gen[chat_id].d}})
         bot.send_message(m.chat.id, 'Обновление успешно!')
+
+
+@bot.message_handler(func=lambda m: m.text and m.text.startswith('/фра'))
+def add_phra(m):
+    text = m.text.split(maxsplit=1)
+    if len(text) == 2:
+        if m.reply_to_message:
+            phrases[text[1]] = m.reply_to_message.text
+            bot.send_message(m.chat.id, 'Хорошо, холоп. Я запомнил эту фразу')
+        else:
+            try:
+                bot.send_message(m.chat.id, phrases[text[1]])
+            except Exception as e:
+                print(traceback.format_exc())
+                bot.send_message(m.chat.id, 'Я не помню такого. Возможно она называлась как-то по-другому?')
 
 
 @bot.message_handler()
