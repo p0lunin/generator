@@ -13,7 +13,7 @@ rul_gen.add_rule('$action')
 rul_gen.add_words('$action', ['хочет', 'не хочет', 'продал', 'полюбил', 'трахнул', 'показал'])
 rul_gen.add_next('$action', '$whom')
 rul_gen.add_rule('$whom')
-rul_gen.add_words('$whom', ['осла', 'крысу', 'двач', 'жопу', 'пасюка', 'меня', 'гошу', 'брита'])
+rul_gen.add_words('$whom', ['осла', 'крысу', 'двач', 'жопу', 'пасюка', 'меня', 'гошу', 'брита', 'женю'])
 rul_gen.add_next('$whom', '$end_of_mes$')
 
 
@@ -62,6 +62,16 @@ def rul(m):
         if ttt[1] != 'хочет' or ttt[1] != 'не хочет':
             alala = 'а'
             tts = ttt[0] + ' ' + ttt[1] + alala + ' ' + ttt[2]
+    if ttt[0] == 'Я':      
+        if ttt[1] != 'не хочет':
+            tts = ttt[0] + ' ' + 'не хочу' + ttt[2] 
+        elif ttt[1] != 'хочет':
+            tts = ttt[0] + ' ' + 'не хочу' + ttt[2]
+    if ttt[0] == 'Ты':
+        if ttt[1] != 'не хочет':
+            tts = ttt[0] + ' ' + 'не хочешь' + ttt[2] 
+        elif ttt[1] != 'хочет':
+            tts = ttt[0] + ' ' + 'хочешь' + ttt[2]
     bot.send_message(m.chat.id, tts)
 
 
