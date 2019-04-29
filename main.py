@@ -60,7 +60,7 @@ def rul(m):
     ttt = tts.split(' ')
     if ttt[0] == 'Двач' or ttt[0] == 'Женя':
         if ttt[1] != 'хочет' or ttt[1] != 'не хочет':
-            alala += 'а'
+            alala = 'а'
             tts = ttt[0] + ' ' + ttt[1] + alala + ' ' + ttt[2]
     bot.send_message(m.chat.id, tts)
 
