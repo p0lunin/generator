@@ -10,7 +10,7 @@ rul_gen.add_rule('$start')
 rul_gen.add_words('$start', ['Я', 'Ты', 'Он', 'Брит', 'Пасюк', 'Двач', 'Гоша', 'Женя'])
 rul_gen.add_next('$start', '$action')
 rul_gen.add_rule('$action')
-rul_gen.add_words('$action', ['хочет', 'не хочет', 'продал', 'полюбил', 'трахнул'])
+rul_gen.add_words('$action', ['хочет', 'не хочет', 'продал', 'полюбил', 'трахнул', 'показал'])
 rul_gen.add_next('$action', '$whom')
 rul_gen.add_rule('$whom')
 rul_gen.add_words('$whom', ['осла', 'крысу', 'двач', 'жопу', 'пасюка', 'меня', 'гошу', 'брита'])
@@ -56,7 +56,13 @@ def story(m):
 @bot.message_handler(commands=['rul'])
 def rul(m):
     bot.delete_message(m.chat.id, m.message_id)
-    bot.send_message(m.chat.id, rul_gen.generate('$start'))
+    tts = rul_gen.generate('$start')
+    ttt = tts.split(' ')
+    if ttt[0] == 'Двач' or ttt[0] == 'Женя':
+        if ttt[1] != 'хочет' or ttt[1] != 'не хочет':
+            alala += 'а'
+            tts = ttt[0] + ' ' + ttt[1] + alala + ' ' + ttt[2]
+    bot.send_message(m.chat.id, tts)
 
 
 @bot.message_handler(commands=['upddb'])
