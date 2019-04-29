@@ -1,70 +1,45 @@
 import random
 from telebot import TeleBot, types
+from pymongo import MongoClient
+from generator import Generator
+from rules import RuleGenerator
 
 
-class Generator:
-    def __init__(self):
-        self.d = {}
-        self.signs_end_of_sent = ['.', '!', '?']
+rul_gen = RuleGenerator()
+rul_gen.add_rule('$start')
+rul_gen.add_words('$start', ['Я', 'Ты', 'Он', 'Брит', 'Пасюк', 'Двач', 'Гоша', 'Женя'])
+rul_gen.add_next('$start', '$action_me')
+rul_gen.add_rule('$action_me')
+rul_gen.add_words('$action', ['хочет', 'не хочет', 'продал', 'полюбил', 'трахнул'])
+rul_gen.add_next('$action', '$whom')
+rul_gen.add_rule('$whom')
+rul_gen.add_words('$whom', ['осла', 'крысу', 'двач', 'жопу', 'пасюка', 'меня', 'гошу', 'брита'])
+rul_gen.add_next('$whom', '$end_of_mes$')
 
-    def add(self, leks):
-        if ":START:" in leks or ":END_OF_MES:" in leks or ":END:" in leks:
-            return False
-        leks = ":START: " + leks
-        while leks[-1] in self.signs_end_of_sent:
-            leks = leks[:-1]
-        leks = leks.replace("\n", " :END_OF_MES: ")
-        leks += " :END_OF_MES:"
-        for sign in self.signs_end_of_sent:
-            leks = leks.replace(sign, ' :END: :START: ')
-        leks = leks.split()
-        for i in range(len(leks)-1):
-            if leks[i] not in self.d.keys():
-                self.d[leks[i]] = {}
-            if leks[i+1] not in self.d[leks[i]].keys():
-                self.d[leks[i]][leks[i + 1]] = 1
-            else:
-                self.d[leks[i]][leks[i + 1]] += 1
-        return True
-
-    def generate(self, first_word):
-        try:
-            self.d[first_word]
-        except:
-            return "Unknown word", False
-        res = ""
-        while True:
-            max_num = sum(self.d[first_word].values())
-            words = []
-            for key, value in self.d[first_word].items():
-                temp = [key, value]
-                words.append(temp)
-            num = random.randint(1, max_num)
-            temp = 0
-            for word, count in words:
-                temp += count
-                if num <= temp:
-                    if word == ":END_OF_MES:":
-                        return res.replace(' :END: :START:', '.')
-                    res += word + ' '
-                    first_word = word
-                    break
-
-    def random_mes(self):
-        res = self.generate(':START:')
-        while not res:
-            res = self.generate(random.choice(list(self.d.keys())))
-        return res
 
 gen = {}
 
+creator = 268486177
 bot = TeleBot('616926239:AAEfQVr4_2tf58Gcok-3YKO1vz6qUHYziVU')
+client = MongoClient('mongodb+srv://interbellum_bot:9ga6kKAhm3zAQmp@cluster0-rnman.gcp.mongodb.net/test?retryWrites=true')
+db = client.god_db
+chats = db.chats
+ans_to_appeal = {
+    0: ['Согласен с тобой', 'Если вновь такое задумаешь, покараю тебя', 'Не согласен', 'Подумай хорошенько', 'Да ты чертов гений!', 'Зачем я тебя создал, ничтожество...'],
+    1: ['Ты это про меня, смертный?', 'Подумай еще раз, и скажи мне это в лицо', 'Холоп несчастный, не видать тебе моих денег как своей женщины'],
+    2: ['Опять ты за свое', 'Угомонись уже', 'Не думаю']
+}
+
+for chat in chats.find({}):
+    gen[chat['id']] = Generator()
+    gen[chat['id']].d = chat['words']
 
 
 def create_gen(chat_id):
-    if not chat_id in gen:
+    if chat_id not in gen:
         gen[chat_id] = Generator()
-        gen[chat_id].add('Я - великий и могучий Перели. Склонись передо мной.') 
+        gen[chat_id].add('Я - великий и могучий Перели. Склонись передо мной.')
+        chats.insert_one({'id': chat_id, 'words': {}})
 
 
 @bot.message_handler(commands=['test'])
@@ -78,17 +53,53 @@ def story(m):
         bot.send_message(m.chat.id, 'Ишь чего захотел. Перехочешь.')
 
 
-@bot.message_handler(commands=['print'])
-def pr(m):
-    print(gen[m.chat_id].d)
-    bot.send_message(m.chat.id, 'ok')
+@bot.message_handler(commands=['rul'])
+def rul(m):
+    bot.delete_message(m.chat.id, m.message_id)
+    bot.send_message(m.chat.id, rul_gen.generate('$start'))
+
+
+@bot.message_handler(commands=['upddb'])
+def upd_db(m):
+    if m.from_user.id == creator:
+        bot.send_message(m.chat.id, 'Начинаю обновление базы данных...')
+        for chat_id in gen:
+            chats.update_one({'id': chat_id}, {'$set': {'words': gen[chat_id].d}})
+        bot.send_message(m.chat.id, 'Обновление успешно!')
 
 
 @bot.message_handler()
 def all_msg(m):
     create_gen(m.chat.id)
+    m.text = m.text.lower()
+    is_appeal, pos = is_appeal_in_mes(m.text)
+    if 'что, если' in m.text:
+        bot.send_message(m.chat.id, 'Не будет денег у тебя, вот что')
+    elif 'пасюк' in m.text:
+        bot.send_message(m.chat.id, 'Лошадкин - мой. Только я его могу его анал трогать.')
+    elif is_appeal:
+        bot.send_message(m.chat.id, random.choice(ans_to_appeal[pos]))
     if m.text:
         gen[m.chat.id].add(m.text)
+
+
+appeals = ['бог', 'всевышн', 'перели', 'бож']
+def is_appeal_in_mes(text):
+    text = text.lower()
+    print(text)
+    start_appeal = -1
+    for appeal in appeals:
+        start_appeal = text.find(appeal)
+        if start_appeal != -1:
+            break
+    if start_appeal == -1:
+        return False, -1
+    strlen = len(text)
+    if start_appeal < 20:
+        return True, 0
+    if start_appeal < strlen/100*80:
+        return True, 1
+    return True, 2
 
 
 bot.delete_webhook()
