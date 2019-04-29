@@ -56,23 +56,23 @@ def story(m):
 @bot.message_handler(commands=['rul'])
 def rul(m):
     bot.delete_message(m.chat.id, m.message_id)
-    tts = rul_gen.generate('$start')
-    ttt = tts.split(' ')
+    text_eblana = rul_gen.generate('$start')
+    spisok_slov_eblana = text_eblana.split(' ')
     if ttt[0] == 'Двач' or ttt[0] == 'Женя':
-        if ttt[1] != 'хочет' or ttt[1] != 'не хочет':
+        if spisok_slov_eblana[1] != 'хочет' or spisok_slov_eblana[1] != 'не хочет':
             alala = 'а'
-            tts = ttt[0] + ' ' + ttt[1] + alala + ' ' + ttt[2]
+            text_eblana = spisok_slov_eblana[0] + ' ' + spisok_slov_eblana[1] + alala + ' ' + spisok_slov_eblana[2]
     if ttt[0] == 'Я':      
         if ttt[1] != 'не хочет':
-            tts = ttt[0] + ' ' + 'не хочу' + ttt[2] 
+            text_eblana = spisok_slov_eblana[0] + ' ' + 'не хочу' + spisok_slov_eblana[2] 
         elif ttt[1] != 'хочет':
-            tts = ttt[0] + ' ' + 'не хочу' + ttt[2]
-    if ttt[0] == 'Ты':
-        if ttt[1] != 'не хочет':
-            tts = ttt[0] + ' ' + 'не хочешь' + ttt[2] 
-        elif ttt[1] != 'хочет':
-            tts = ttt[0] + ' ' + 'хочешь' + ttt[2]
-    bot.send_message(m.chat.id, tts)
+            text_eblana = spisok_slov_eblana[0] + ' ' + 'не хочу' + spisok_slov_eblana[2]
+    if spisok_slov_eblana[0] == 'Ты':
+        if spisok_slov_eblana[1] != 'не хочет':
+            text_eblana = spisok_slov_eblana[0] + ' ' + 'не хочешь' + spisok_slov_eblana[2] 
+        elif spisok_slov_eblana[1] != 'хочет':
+            text_eblana = spisok_slov_eblana[0] + ' ' + 'хочешь' + ttt[2]
+    bot.send_message(m.chat.id, text_eblana)
 
 
 @bot.message_handler(commands=['upddb'])
