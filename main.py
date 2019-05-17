@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from telebot import TeleBot, types
 from rules import Rule, r
+from urllib.parse import unquote
 
 creator = 268486177
 bot = TeleBot('616926239:AAG4j5if1vFODOdcqeM9ID8PFCfRyu95kaM')
@@ -26,7 +27,10 @@ def google(m):
     is_ans = False
     for item in items:
         try:
-            link = item.find('h3', {'class': 'r'}).find('a').get('href')[7:]
+            link = unquote(item.find('h3', {'class': 'r'}).find('a').get('href')[7:])
+            pos = link.find('&sa')
+            if pos != -1:
+                link = link[:pos]
             txt = item.find('h3', {'class': 'r'}).find('a').text
             desc = item.find('span', {'class': 'st'}).text
             desc = desc.replace('<', '&lt;')
@@ -39,7 +43,6 @@ def google(m):
     if not is_ans:
         bot.send_message(m.chat.id, 'Ответов на ваш запрос нет')
         return
-    print(text)
     bot.send_message(m.chat.id, text, parse_mode='HTML')
 
 
