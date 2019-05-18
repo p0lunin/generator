@@ -1,11 +1,12 @@
 class Comparator:
-    def __init__(self, k):
+    def __init__(self, k, ln):
         self.k = k
+        self.ln = ln
 
     def compare(self, first, second):
         s = 0
         j = 0
-        if abs(len(first) - len(second)) > 2:
+        if abs(len(first) - len(second)) > self.ln:
             return False
         for i in range(len(first)):
             if first[i] in second[j:]:
@@ -17,7 +18,7 @@ class Comparator:
 
 
 class Rule:
-    def __init__(self, rule, words, k1=0.8, k2=3):
+    def __init__(self, rule, words, k1=0.8, k2=3, ln=2):
         """
         :param rule: str in format "keyword keyword keyword3"
         :param words: dict in format {keyword: [word1, word2], keyword2: [word1, word2]}
@@ -25,7 +26,7 @@ class Rule:
         self.words = words
         self.rule = rule.lower().split()
         self.len_rule = len(self.rule)
-        self.comp = Comparator(k1)
+        self.comp = Comparator(k1, ln=ln)
         self.k2 = k2
 
     def find(self, string):
@@ -47,4 +48,8 @@ class Rule:
         return False
 
 
-r = Rule('i want work', {'i': ['я', 'мне', 'меня'], 'want': ['хочу', 'хочется', 'желаю', 'желание'], 'work': ['работать', 'пахать', 'вкалывать', 'подметать', 'чистить']})
+rules = {
+    'work': Rule('i want work', {'i': ['я', 'мне', 'меня'], 'want': ['хочу', 'хочется', 'желаю', 'желание'], 'work': ['работать', 'пахать', 'вкалывать', 'подметать', 'чистить']}),
+    'who': Rule('who', {'who': ['кто']}, k1=0.75),
+    'god': Rule('god', {'god': ['бог', 'боже', 'господь']}, k1=0.7)
+}

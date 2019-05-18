@@ -3,13 +3,18 @@ import traceback
 import requests
 from bs4 import BeautifulSoup
 from telebot import TeleBot, types
-from rules import Rule, r
+from rules import *
 from urllib.parse import unquote
 import googleapiclient.discovery as ds
-import google_auth_oauthlib.flow as fl
+import time
 
 creator = 268486177
 bot = TeleBot('616926239:AAG4j5if1vFODOdcqeM9ID8PFCfRyu95kaM')
+
+
+@bot.message_handler(commands=['test'])
+def tst(m):
+    bot.send_message(m.chat.id, datetime.datetime.now() + datetime.timedelta(minutes=1, hours=3))
 
 
 @bot.message_handler(commands=['g'])
@@ -49,8 +54,6 @@ def google(m):
 
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
-# flow = fl.InstalledAppFlow.from_client_secrets_file('telegram-bot-12ab15b21c08.json', scopes)
-# credentials = flow.run_console()
 youtube = ds.build('youtube', 'v3', developerKey='AIzaSyDDvaLsMyPuwr6hWHmIeOMxwc52W4gyrpM')
 
 
@@ -70,7 +73,7 @@ def search_youtube(m):
     print(response)
     if response['pageInfo']['totalResults'] == 0:
         bot.send_message(m.chat.id, 'По вашему запросу ничего не найдено :(')
-        return 
+        return
     for item in response['items']:
         try:
             text += '<a href="http://youtu.be/{}">{}</a>\n'.format(item['id']['videoId'], item['snippet']['title'])
@@ -80,11 +83,28 @@ def search_youtube(m):
     bot.send_message(m.chat.id, text, parse_mode='HTML', disable_web_page_preview=True)
 
 
+answers = {
+    'work': ['Работящий ты наш', 'Работай, че', 'Ебаклак?', 'Я вижу'],
+    'who': ['Ты', 'Пасюк', 'Брит', 'Гоша', 'Очко осла', 'Ебаклак', 'Бог', 'Пошел нахуй, заебал',
+            'Писос вонючий ебаного осла'],
+    'god': ['Да да я']
+}
+
+
 @bot.message_handler(content_types=['text'])
 def handler(m):
-    is_want_work = r.find(m.text)
-    if is_want_work:
-        bot.reply_to(m, 'Ты хочешь работать, я вижу!')
+    s = 0
+    for char in m.text:
+        if char in ['y', 'Y', 'u', 'U', 'у', 'У']:
+            s += 1
+    if s/len(m.text) > 0.5 and len(m.text) > 5:
+        bot.restrict_chat_member(m.chat.id, m.from_user.id, int(time.time())+60)
+        bot.delete_message(m.chat.id, m.message_id)
+        bot.send_message(m.chat.id, 'Забанил <a href="tg://user?id={}">ебаклака</a> за сову. НЕНАВИЖУ БЛЯТЬ СОВ ЕБАНЫХ'.format(m.from_user.id), parse_mode='HTML')
+    for rule in rules:
+        if rules[rule].find(m.text):
+            bot.send_message(m.chat.id, random.choice(answers[rule]))
+            return
 
 
 bot.polling(none_stop=True, timeout=600)
