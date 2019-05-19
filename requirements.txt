@@ -1,4 +1,4 @@
 pytelegrambotapi
 bs4
 lxml
-googleapiclient
+google-api-python-client
