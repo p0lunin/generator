@@ -101,6 +101,8 @@ def handler(m):
         bot.restrict_chat_member(m.chat.id, m.from_user.id, int(time.time())+60)
         bot.delete_message(m.chat.id, m.message_id)
         bot.send_message(m.chat.id, 'Забанил <a href="tg://user?id={}">ебаклака</a> за сову. НЕНАВИЖУ БЛЯТЬ СОВ ЕБАНЫХ'.format(m.from_user.id), parse_mode='HTML')
+    if time_rule.find(m.text):
+        bot.send_message(m.chat.id, str(time.ctime()))
     for rule in rules:
         if rules[rule].find(m.text):
             bot.send_message(m.chat.id, random.choice(answers[rule]))

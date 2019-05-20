@@ -53,3 +53,4 @@ rules = {
     'who': Rule('who', {'who': ['кто']}, k1=0.75),
     'god': Rule('god', {'god': ['бог', 'боже', 'господь']}, k1=0.7)
 }
+time_rule = Rule('which hour', {'which': ['который', 'сколько'], 'hour': ['час', 'время']})
