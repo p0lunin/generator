@@ -23,14 +23,15 @@ def google(m):
     if len(text) != 2:
         bot.send_message(m.chat.id, '/g <запрос>')
         return
-    r = requests.get('http://google.com/search?q={}'.format(text[1]))
+    headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux i686; rv:64.0) Gecko/20100101 Firefox/64.0'}
+    r = requests.get('http://google.com/search?q={}'.format(text[1]), headers=headers)
     soup = BeautifulSoup(r.text, features="lxml")
     try:
         items = soup.find_all('div', {'class': 'g'}, limit=5)
     except:
         bot.send_message(m.chat.id, 'Ответов на ваш запрос нет')
         return
-    text = ''
+    text = 'status-code: {}\n'.format(r.status_code)
     is_ans = False
     for item in items:
         try:
@@ -47,8 +48,8 @@ def google(m):
             is_ans = True
         except:
             continue
-    if not is_ans:
-        bot.send_message(m.chat.id, 'Ответов на ваш запрос нет')
+    if r.status_code == 429:
+        bot.send_message(m.chat.id, 'Гугл посчитал Бога роботом. Пойду ему акции в цене понижу.')
         return
     bot.send_message(m.chat.id, text, parse_mode='HTML', disable_web_page_preview=True)
 
@@ -87,7 +88,8 @@ answers = {
     'work': ['Работящий ты наш', 'Работай, че', 'Ебаклак?', 'Я вижу'],
     'who': ['Ты', 'Пасюк', 'Брит', 'Гоша', 'Очко осла', 'Ебаклак', 'Бог', 'Пошел нахуй, заебал',
             'Писос вонючий ебаного осла'],
-    'god': ['Да да я']
+    'god': ['Да да я'],
+    'go dota': ['Я с вами!', 'Ебланы конченные?', '@p0lunin это бан', 'Привет гей']
 }
 
 

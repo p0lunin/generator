@@ -12,7 +12,7 @@ class Comparator:
             if first[i] in second[j:]:
                 s += 1
                 j = i
-        if s/len(first) > self.k:
+        if len(first) == 0 or s/len(first) > self.k:
             return True
         return False
 
@@ -51,6 +51,7 @@ class Rule:
 rules = {
     'work': Rule('i want work', {'i': ['я', 'мне', 'меня'], 'want': ['хочу', 'хочется', 'желаю', 'желание'], 'work': ['работать', 'пахать', 'вкалывать', 'подметать', 'чистить']}),
     'who': Rule('who', {'who': ['кто']}, k1=0.75),
-    'god': Rule('god', {'god': ['бог', 'боже', 'господ']}, k1=1)
+    'god': Rule('god', {'god': ['бог', 'боже', 'господ']}, k1=1),
+    'go dota': Rule('go play dota', {'go': ['пошли', 'го', 'пойдем'], 'play': ['играть', '', 'гамать', 'сосать'], 'dota': ['доту', 'в доту', 'геев']})
 }
 time_rule = Rule('which hour', {'which': ['который', 'сколько'], 'hour': ['час', 'время']}, k1=0.7)
