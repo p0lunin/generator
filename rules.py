@@ -1,3 +1,6 @@
+# ln - максимальная длина дополнительных слов
+# k - в процентах, насколько слова не совпадают по буквам
+#
 class Comparator:
     def __init__(self, k, ln):
         self.k = k
@@ -17,41 +20,45 @@ class Comparator:
         return False
 
 
-class Rule:
-    def __init__(self, rule, words, k1=0.8, k2=3, ln=2):
-        """
-        :param rule: str in format "keyword keyword keyword3"
-        :param words: dict in format {keyword: [word1, word2], keyword2: [word1, word2]}
-        """
+example = [
+    {
+        'k': ['a', 'b'],
+        'v': 'c'
+    }
+]
+
+
+class MessagesComparator:
+    def __init__(self, words: dict, k1=0.8, k2=0.7, ln=2, ln2=2):
         self.words = words
-        self.rule = rule.lower().split()
-        self.len_rule = len(self.rule)
-        self.comp = Comparator(k1, ln=ln)
+        self.comp_words = Comparator(k1, ln=ln)
+        self.ln2 = ln2
         self.k2 = k2
 
-    def find(self, string):
-        l = string.lower().split()
-        now_check = 0
-        i = -1
-        for word in l:
-            for keyword in self.words[self.rule[now_check]]:
-                if self.comp.compare(keyword, word):
-                    now_check += 1
-                    i = -1
-                    if now_check == self.len_rule:
-                        return True
-                    break
-            if now_check != 0:
-                i += 1
-            if i == self.k2:
-                return False
-        return False
+    def check(self, string: str):
+        for sentence in string.split('.'):
+            sentence = sentence.replace('\n', ' ').lower()
+            for dictt in self.words:
+                rule_words = dictt['k']
+                answ = dictt['v']
+                words_len = len(sentence.split())
+                if abs(words_len - len(rule_words)) > self.ln2:
+                    continue
+                count_eq_words = 0
+                i = 0
+                for word in sentence.split():
+                    try:
+                        is_equal = self.comp_words.compare(rule_words[i], word)
+                    except:
+                        break
+                    if is_equal:
+                        count_eq_words += 1
+                        i += 1
+                if count_eq_words == 0:
+                    continue
+                if words_len/count_eq_words > self.k2:
+                    return answ
 
-
-rules = {
-    'work': Rule('i want work', {'i': ['я', 'мне', 'меня'], 'want': ['хочу', 'хочется', 'желаю', 'желание'], 'work': ['работать', 'пахать', 'вкалывать', 'подметать', 'чистить']}),
-    'who': Rule('who', {'who': ['кто']}, k1=0.75),
-    'god': Rule('god', {'god': ['бог', 'боже', 'господ']}, k1=1),
-    'go dota': Rule('go play dota', {'go': ['пошли', 'го', 'пойдем'], 'play': ['играть', '', 'гамать', 'сосать'], 'dota': ['доту', 'в доту', 'геев']})
-}
-time_rule = Rule('which hour', {'which': ['который', 'сколько'], 'hour': ['час', 'время']}, k1=0.7)
+    def add_trigger(self, trigger, answer):
+        trigger = trigger.split()
+        self.words[trigger] = answer
