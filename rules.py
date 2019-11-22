@@ -29,7 +29,7 @@ example = [
 
 
 class MessagesComparator:
-    def __init__(self, words: dict, k1=0.8, k2=0.7, ln=2, ln2=2):
+    def __init__(self, words: dict, k1=0.8, k2=0.7, ln=2, ln2=0):
         self.words = words
         self.comp_words = Comparator(k1, ln=ln)
         self.ln2 = ln2
