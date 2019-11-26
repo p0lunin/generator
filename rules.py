@@ -1,3 +1,5 @@
+import random
+
 # ln - максимальная длина дополнительных слов
 # k - в процентах, насколько слова не совпадают по буквам
 #
@@ -36,6 +38,7 @@ class MessagesComparator:
         self.k2 = k2
 
     def check(self, string: str):
+        answers = []
         for sentence in string.split('.'):
             sentence = sentence.replace('\n', ' ').lower()
             for dictt in self.words:
@@ -57,8 +60,14 @@ class MessagesComparator:
                 if count_eq_words == 0:
                     continue
                 if count_eq_words/words_len > self.k2:
-                    return answ
+                    from_user = dictt.get('from')
+                    if from_user:
+                        answers.append(f'Как сказал бы <b>{from_user}</b>, <i>{answ}</i>')
+                    else:
+                        answers.append(answ)
+        return random.choice(answers)
 
-    def add_trigger(self, trigger, answer):
+
+    def add_trigger(self, trigger, answer, from_user=None):
         trigger = trigger.split()
-        self.words.append({'k': trigger, 'v': answer})
+        self.words.append({'k': trigger, 'v': answer, 'from': from_user})

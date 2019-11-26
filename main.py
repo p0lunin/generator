@@ -80,14 +80,18 @@ def check_not_sova(m):
             pass
     answ = triggers.check(m.text)
     if answ:
-        bot.send_message(m.chat.id, answ, reply_to_message_id=m.message_id)
+        try:
+            bot.send_message(m.chat.id, answ, reply_to_message_id=m.message_id, parse_mode='HTML')
+        except:
+            pass
     if m.reply_to_message:
         keys = m.reply_to_message.text.split('.')
         value = m.text
         for key in keys:
-            triggers_col.update_one({'id': 0}, {'$push': {'triggers': {'k': key, 'v': value}}})
-            triggers.add_trigger(key, value)
+            triggers_col.update_one({'id': 0}, {'$push': {'triggers': {'k': key, 'v': value, 'from': m.from_user.first_name}}})
+            triggers.add_trigger(key, value, m.from_user.first_name)
             print(f'new trigger!\nkey:{key}\nvalue:{value}')
 
-
+bot.set_webhook()
+bot.delete_webhook()
 bot.polling(none_stop=True, timeout=600)
