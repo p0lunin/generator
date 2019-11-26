@@ -39,7 +39,7 @@ class MessagesComparator:
 
     def check(self, string: str):
         answers = []
-        for sentence in string.split('.'):
+        for sentence in string.lower().split('.'):
             sentence = sentence.replace('\n', ' ').lower()
             for dictt in self.words:
                 rule_words = dictt['k']
@@ -51,7 +51,7 @@ class MessagesComparator:
                 i = 0
                 for word in sentence.split():
                     try:
-                        is_equal = self.comp_words.compare(rule_words[i], word)
+                        is_equal = self.comp_words.compare(rule_words[i].lower(), word)
                     except:
                         break
                     if is_equal:
@@ -69,7 +69,6 @@ class MessagesComparator:
             return random.choice(answers)
         except:
             return None
-
 
     def add_trigger(self, trigger, answer, from_user=None):
         trigger = trigger.split()
