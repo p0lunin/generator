@@ -65,7 +65,10 @@ class MessagesComparator:
                         answers.append(f'Как сказал бы <b>{from_user}</b>, <i>{answ}</i>')
                     else:
                         answers.append(answ)
-        return random.choice(answers)
+        try:
+            return random.choice(answers)
+        except:
+            return None
 
 
     def add_trigger(self, trigger, answer, from_user=None):
