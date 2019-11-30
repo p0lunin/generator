@@ -31,7 +31,7 @@ example = [
 
 
 class MessagesComparator:
-    def __init__(self, words: list, k1=0.8, k2=0.7, ln=2, ln2=0):
+    def __init__(self, words: list, k1=0.8, k2=0.7, ln=2, ln2=1):
         self.words = words
         self.comp_words = Comparator(k1, ln=ln)
         self.ln2 = ln2
@@ -62,7 +62,7 @@ class MessagesComparator:
                 if count_eq_words/words_len > self.k2:
                     from_user = dictt.get('from')
                     if from_user:
-                        answers.append(f'Как сказал бы <b>{from_user}</b>, <i>{answ}</i>')
+                        answers.append(f'Как сказал бы <b>{from_user}</b>:\n<i>{answ}</i>')
                     else:
                         answers.append(answ)
         try:

@@ -31,6 +31,21 @@ triggers = collection_to_mes_comp()
 print('triggers are red')
 
 
+@bot.message_handler(commands=['update_db'])
+def update_db(m):
+    all_triggers: list = triggers_col.find({}).next()['triggers']
+    new_triggers = []
+    for trigger in all_triggers:
+        if trigger['k'].startswith('Как сказал бы'):
+            new_triggers.append({'k': trigger['k'][4:], 'v': trigger['v']})
+        else:
+            new_triggers.append({'k': trigger['k'], 'v': trigger['v']})
+    triggers_col.update_one({'id': 0}, {'$unset': {'triggers': ''}})
+    triggers_col.update_one({'id': 0}, {'$set': {'triggers': new_triggers}})
+    print(triggers_col.find_one({'id':0}))
+
+
+
 @bot.message_handler(commands=['y'])
 def search_youtube(m):
     text = m.text.split(' ', maxsplit=1)
@@ -85,12 +100,15 @@ def check_not_sova(m):
         except:
             pass
     if m.reply_to_message:
-        keys = m.reply_to_message.text.split('.')
+        keys = " ".join(" ".join(m.reply_to_message.text.split('.')).split('?')).split('!')
         value = m.text
+        if m.reply_to_message.from_user.id == 1022401847 and m.reply_to_message.text.startswith('Как сказал'):
+            keys = " ".join(" ".join(m.reply_to_message.text.split('\n', maxsplit=1)[1].split('.')).split('?')).split('!')
         for key in keys:
             triggers_col.update_one({'id': 0}, {'$push': {'triggers': {'k': key, 'v': value, 'from': m.from_user.first_name}}})
             triggers.add_trigger(key, value, m.from_user.first_name)
             print(f'new trigger!\nkey:{key}\nvalue:{value}')
+
 
 bot.set_webhook()
 bot.delete_webhook()
